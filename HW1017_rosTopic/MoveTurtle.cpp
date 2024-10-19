@@ -56,7 +56,7 @@ float countTheta(const float moveCommand[], const int tempMoveStep){
         dest_theta = abs(dest_theta);
 
     diff_theta = dest_theta - turtle_theta;
-    ROS_INFO("dis_x: %.2f, dis_y: %.2f, diff_theta: %.2f", distance_nx, distance_ny, diff_theta);
+    // ROS_INFO("dis_x: %.2f, dis_y: %.2f, diff_theta: %.2f", distance_nx, distance_ny, diff_theta);
     return diff_theta;
 }
 
@@ -81,6 +81,7 @@ geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int 
     float distance_x = 0.0;
     float distance_y = 0.0;
     float distance   = 0.0;
+    float diff_theta = 0.0;
 
     // Init temp msg
     geometry_msgs::Twist msg;
@@ -92,42 +93,41 @@ geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int 
     // Count distance
     countDistance(moveCommand, readPointer, &distance_x, &distance_y, &distance);
 
+    // Move to dest node
+    if(!(distance < DISTANCE_DEVIATION)){
+        diff_theta    = countTheta(moveCommand, *moveStep);
+        msg.linear.x  = distance;
+        msg.angular.z = diff_theta;
+        //ROS_INFO("Distance x: %f, Distance y: %f", distance_x, distance_y);
+        return msg;
     // Check position
-    if(distance < DISTANCE_DEVIATION){
+    }else{
+        // Print State
         if(*outputFlag == false){
-            ROS_INFO("Node: %d, x: %.2f, y: %.2f, theta: %.2f", *moveStep, turtle_x, turtle_y, turtle_theta);
+            ROS_INFO("Node: %d, x: %.2f, y: %.2f, theta: %.2f", *moveStep, turtle_x, turtle_y, (turtle_theta / PI) * 180);
             *outputFlag = true;
         }
 
         // Count diff theta
         int tempMoveStep = (*moveStep + 1) % mvStepLimit;
-        float diff_theta = countTheta(moveCommand, tempMoveStep);
+        diff_theta = countTheta(moveCommand, tempMoveStep);
 
-        // if((moveCommand[readPointer+1] > moveCommand[tempReadPointer+1] && moveCommand[readPointer] < moveCommand[tempReadPointer]) ||
-        //    (moveCommand[readPointer+1] < moveCommand[tempReadPointer+1] && moveCommand[readPointer] > moveCommand[tempReadPointer]))
-
-        // ROS_INFO("diff_theta: %.2f, turtle_theta: %.2f, dest_theta: %.2f", diff_theta, turtle_theta, dest_theta);
-
-        // Next node
-        if(abs(diff_theta) < THETA_DEVIATION){
-            msg = initMsg();
-            *outputFlag = false;
-            // Avoid moveStep overflow
-            *moveStep += 1;
-            *moveStep %= mvStepLimit;
-            return msg;
-        //          
-        }else{
-            ROS_INFO("diff_theta: %.2f", diff_theta);
+        // Rotate to dest_theta
+        if(!(abs(diff_theta) < THETA_DEVIATION)){
+            //ROS_INFO("diff_theta: %.2f", diff_theta);
             msg = initMsg();
             msg.angular.z = diff_theta * ROTATIONAL_FREQUENCY;
             return msg;
+
+        // Next node
+        }else{
+            msg = initMsg();
+            *outputFlag = false;
+            // Avoid moveStep overflow
+                *moveStep += 1;
+                *moveStep %= mvStepLimit;
+            return msg;
         }
-    }else{
-        msg.linear.x = distance;
-        msg.angular.z= 0.0;
-        ROS_INFO("Distance x: %f, Distance y: %f", distance_x, distance_y);
-        return msg;
     }
     return msg;   
 }
