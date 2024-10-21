@@ -11,6 +11,7 @@
 
 #define PI                   3.14
 #define COMMAND_PARAMETER_N  2
+#define FINISH_NODE          7        
 
 // For turtle's current state
 float turtle_x      = 5.5;
@@ -19,6 +20,7 @@ float turtle_theta  = 0.0;
 
 // Store current move step
 int moveStep = 0;
+int finishCount = 0;
 
 // Count distance
 void countDistance(const float moveCommand[],const int readPointer, float *distance_x, float *distance_y, float *distance){
@@ -27,6 +29,7 @@ void countDistance(const float moveCommand[],const int readPointer, float *dista
     *distance   = sqrt(pow(*distance_x, 2) + pow(*distance_y, 2));
 }
 
+// Count theta
 float countTheta(const float moveCommand[], const int tempMoveStep){
     int tempReadPointer = tempMoveStep * COMMAND_PARAMETER_N;
     float diff_theta  = 0.0;
@@ -37,6 +40,7 @@ float countTheta(const float moveCommand[], const int tempMoveStep){
 
     countDistance(moveCommand, tempReadPointer, &distance_nx, &distance_ny, &distanceN);
 
+    // Degree 90, 270, Origin
     if(abs(distance_nx) < 0.1){
         if(distance_ny > 0)
             return PI / 2 - turtle_theta;
@@ -47,16 +51,13 @@ float countTheta(const float moveCommand[], const int tempMoveStep){
     }else
         dest_theta = acos(distance_nx / distanceN);
 
-    // (X < X' && Y > Y') || (X > X' && Y < Y')
-    // if((distance_nx > 0 && distance_ny <= 0) ||
-    //    (distance_nx <= 0 && distance_ny > 0))
+    // Arccosine to theta
     if(distance_ny < 0)
         dest_theta = 0 - abs(dest_theta);
     else
         dest_theta = abs(dest_theta);
 
     diff_theta = dest_theta - turtle_theta;
-    // ROS_INFO("dis_x: %.2f, dis_y: %.2f, diff_theta: %.2f", distance_nx, distance_ny, diff_theta);
     return diff_theta;
 }
 
@@ -77,7 +78,7 @@ geometry_msgs::Twist initMsg(){
 }
 
 // Set msg
-geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int mvStepLimit, bool *outputFlag){
+geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int mvStepLimit, bool *outputFlag, bool *finishFlag){
     float distance_x = 0.0;
     float distance_y = 0.0;
     float distance   = 0.0;
@@ -104,7 +105,13 @@ geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int 
     }else{
         // Print State
         if(*outputFlag == false){
+            finishCount++;
             ROS_INFO("Node: %d, x: %.2f, y: %.2f, theta: %.2f", *moveStep, turtle_x, turtle_y, (turtle_theta / PI) * 180);
+            // Check finish node
+            if(finishCount == FINISH_NODE){
+                *finishFlag = true;
+                return msg = initMsg();
+            }
             *outputFlag = true;
         }
 
@@ -114,7 +121,6 @@ geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int 
 
         // Rotate to dest_theta
         if(!(abs(diff_theta) < THETA_DEVIATION)){
-            //ROS_INFO("diff_theta: %.2f", diff_theta);
             msg = initMsg();
             msg.angular.z = diff_theta * ROTATIONAL_FREQUENCY;
             return msg;
@@ -135,11 +141,9 @@ geometry_msgs::Twist setMsg(const float moveCommand[], int *moveStep, const int 
 // Topic messages callback
 void poseCallback(const turtlesim::PoseConstPtr& msg)
 {
-    //ROS_INFO("x: %.2f, y: %.2f, theta: %.2f", msg->x, msg->y, msg->theta);
     turtle_x     = msg->x;
     turtle_y     = msg->y;
     turtle_theta = msg->theta;
-    // ROS_INFO("turtle_x: %f, turtle_y: %f", turtle_x, turtle_y);
 }
 
 int main(int argc, char **argv)
@@ -169,7 +173,8 @@ int main(int argc, char **argv)
     // The default constructor will set all commands to 0
     geometry_msgs::Twist msg;
 
-    bool outputFlag = false;
+    bool outputFlag  = false;
+    bool finishFlag  = false;
     // Loop at 10Hz, publishing movement commands until we shut down
     ros::Rate rate(10);
     ROS_INFO("Starting to move forward");
@@ -177,10 +182,13 @@ int main(int argc, char **argv)
         pub.publish(msg);
         ros::spinOnce(); // Allow processing of incoming messages
 
-        // Update msg
-        msg = setMsg(moveCommand, &moveStep, mvStepLimit, &outputFlag);
-        // ROS_INFO("moveStep: %d", moveStep);
-        // ROS_INFO("x: %f, y: %f", msg.linear.x, msg.linear.y);
+        // Get new msg; Check finish node
+        if(!finishFlag)
+            // Update msg
+            msg = setMsg(moveCommand, &moveStep, mvStepLimit, &outputFlag, &finishFlag);
+        else
+            // Stop
+            msg = initMsg();
 
         rate.sleep();
     }
