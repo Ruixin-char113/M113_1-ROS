@@ -1,0 +1,20 @@
+<launch>
+    <!-- Turtlesim Node -->
+    <node pkg="turtlesim" type="turtlesim_node" name="sim"/>
+    <node pkg="turtlesim" type="turtle_teleop_key" name="teleop" output="screen"/>
+
+    <!-- tf broadcaster node -->
+    <node pkg="tf_demo" type="tf_broadcaster"
+        args="/turtle1" name="turtle1_tf_broadcaster" output="screen"/>
+
+    <!-- Second broadcaster node -->
+    <node pkg="tf_demo" type="tf_broadcaster"
+        args="/turtle2" name="turtle2_tf_broadcaster"/>    
+
+    <!-- tf listener node-->
+    <node pkg="ex6_2" type="turtle_move" name="turtle_move" output="screen"/>
+
+    <!-- tf listener node-->
+    <node pkg="ex6_2" type="turtle_follow" name="turtle_follow" output="screen"/>
+
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+	<!-- loading the world -->
+	<!-- <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_world.launch"/> -->
+	<include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house_with_sky.launch"/>
+
+	<!-- SLAM: Gmapping -->
+	<include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch"/>
+
+	<!-- TurtleBot3 simulation -->
+	<!-- <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_simulation.launch"/> -->
+	<include file="$(find wanderer)/Wanderer_call.launch"/>
+</launch>
