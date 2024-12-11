@@ -1,0 +1,14 @@
+# Define the goal
+uint32 dishwasher_id  # Specify which dishwasher we want to use
+float32 x
+float32 y
+float32 theta
+float32 length
+---
+# Define the result
+uint32 total_dishes_cleaned
+---
+# Define a feedback message
+float32 percent_complete
+float32 return_x
+float32 return_y
