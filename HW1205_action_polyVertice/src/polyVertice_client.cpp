@@ -7,7 +7,8 @@ typedef actionlib::SimpleActionClient<ex8_1_poly_vertice::poly_verticeAction> Cl
 void doneCb (const actionlib::SimpleClientGoalState& state,
                 const ex8_1_poly_vertice::poly_verticeResultConstPtr& result)
 {
-    ROS_INFO("Yay! The dishes are now clean");
+    // ROS_INFO("Yay! The dishes are now clean");
+    ROS_INFO("Show all vertices.");
     ROS_INFO("Student id: 11363111");
     ros::shutdown();
 }
@@ -21,7 +22,8 @@ void activeCb()
 // 收到feedback後呼叫的回呼函數
 void feedbackCb(const ex8_1_poly_vertice::poly_verticeFeedbackConstPtr& feedback)
 {
-    ROS_INFO(" percent_complete: %f ", feedback->percent_complete);
+    // ROS_INFO(" percent_complete: %f ", feedback->percent_complete);
+    ROS_INFO("x: %.2f, y: %.2f", feedback->return_x, feedback->return_y);
 }
 
 bool isNumber(char c[]){
@@ -110,9 +112,7 @@ int main(int argc, char** argv)
     // 建立一個action的goal 
     ex8_1_poly_vertice::poly_verticeGoal goal; 
     goal = setGoal(std::stof(argv[1]), std::stof(argv[2]), std::stof(argv[3]), std::stof(argv[4]));
-    goal.dishwasher_id = 1;
-    // goal.dishwasher_id = std::stoi(argv[1]);
-
+    // goal.dishwasher_id = 1;
 
     // 傳送action的goal給伺服器端,並且設定回呼函數
     client.sendGoal(goal, &doneCb, &activeCb, &feedbackCb); 
