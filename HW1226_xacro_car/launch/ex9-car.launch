@@ -1,0 +1,20 @@
+<launch>
+    <arg name="model" default="$(find myrobot_pkg)/robots/ex9-car.urdf"/>
+    <arg name="gui" default="true" />
+    <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+
+    <!-- <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/> -->
+    <include file="$(find gazebo_ros)/launch/empty_world_with_sky.launch"/>
+
+    <!-- <param name="robot_description" command="$(find xacro)/xacro $(find pr2_description)/robots/pr2.urdf.xacro"/> -->
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+    <node name="spawn_ex9car_node" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -z 2 -model ex9-car"/>
+    <!-- <node name="spawn_myfirst_node" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -x 2 -model myfirst"/> -->
+
+    <!-- rviz -->
+    <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+    <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

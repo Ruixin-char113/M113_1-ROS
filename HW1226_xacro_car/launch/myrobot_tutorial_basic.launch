@@ -1,0 +1,41 @@
+<launch>
+  <!-- display the model in rviz -->
+  <arg name="gui" default="true"/>
+  <arg name="configuration_basename" default="turtlebot3_lds_2d.lua"/>
+  <param name="use_gui" value="$(arg gui)"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find urdf_tutorial)/urdf.rviz"/> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot3_slam)/rviz/turtlebot3_gmapping.rviz"/>
+  
+  <!--=================================-->
+  
+  <!-- loading the world in Gazebo-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_world.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+  <!-- Spawn a robot into Gazebo -->
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)"/>
+  <arg name="x_pos" default="2.0"/>
+  <arg name="y_pos" default="0.5"/>
+  <arg name="z_pos" default="0.1"/>
+  <!-- <param name="robot_description" command="$(find xacro)/xacro /home/rui/catkin_ws/src/myrobot_pkg/urdf/myrobot_basic.xacro"/> -->
+  <param name="robot_description" command="$(find xacro)/xacro /home/rui/catkin_ws/src/myrobot_pkg/urdf/myrobot_ex10.xacro"/>
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model myrobot -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description"/>
+  <!--=================================-->
+
+  <!-- SLAM -->
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_gmapping.launch">
+    <arg name="model" value="myrobot"/>
+    <arg name="configuration_basename" value="$(arg configuration_basename)"/>
+  </include>
+
+  <!-- Turtlebot3 simulation -->
+    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_simulation.launch"/>
+</launch>
+
