@@ -1,4 +1,17 @@
 <launch>
+  <!-- <param name="goal_x" type="double" value="4.0" />
+  <param name="goal_y" type="double" value="0.0" />
+  <param name="goal_theta" type="double" value="180" /> -->
+  <rosparam param="goal_xa">
+      [2, 0, -2, 0]
+  </rosparam>
+  <rosparam param="goal_ya">
+      [0, 2, 0, -2]
+  </rosparam>
+  <rosparam param="goal_thetaa">
+      [90, 180, 270, 360]
+  </rosparam>
+
   <!-- display the model in rviz -->
   <arg name="gui" default="true"/>
   <arg name="configuration_basename" default="turtlebot3_lds_2d.lua"/>
@@ -48,7 +61,10 @@
   </include>
 
   <!-- AMCL -->
-  <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+    <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
+        <arg name="initial_pose_x" value="$(arg x_pos)"/>
+        <arg name="initial_pose_y" value="$(arg y_pos)"/>
+    </include>
 
   <!-- Turtlebot3 simulation -->
     <!-- <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_simulation.launch"/> -->
