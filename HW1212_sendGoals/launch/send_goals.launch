@@ -1,7 +1,16 @@
 <launch>
-    <param name="goal_x" type="double" value="-2.0" />
+    <!-- <param name="goal_x" type="double" value="-2.0" />
     <param name="goal_y" type="double" value="0.0" />
-    <param name="goal_theta" type="double" value="180" />
+    <param name="goal_theta" type="double" value="180" /> -->
+    <rosparam param="goal_xa">
+        [2, 0, -2, 0]
+    </rosparam>
+    <rosparam param="goal_ya">
+        [0, 2, 0, -2]
+    </rosparam>
+    <rosparam param="goal_thetaa">
+        [90, 180, 270, 360]
+    </rosparam>
 
     <param name="/use_sin_time" value="true"/>
 
