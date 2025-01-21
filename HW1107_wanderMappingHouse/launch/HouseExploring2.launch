@@ -8,5 +8,5 @@
 
 	<!-- TurtleBot3 simulation -->
 	<!-- <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_simulation.launch"/> -->
-	<include file="$(find wanderer)/Wanderer_call.launch"/>
+	<include file="$(find wanderer)/launch/Wanderer_call.launch"/>
 </launch>

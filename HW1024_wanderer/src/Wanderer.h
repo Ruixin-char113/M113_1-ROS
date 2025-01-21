@@ -8,13 +8,18 @@ public:
     // Tunable parameters
     static constexpr double FORWARD_SPEED             = 0.3;
     static constexpr double L_MIN_SCAN_ANGLE          = 0.0   / 180 * M_PI;
-    static constexpr double L_MAX_SCAN_ANGLE          = 20.0  / 180 * M_PI;
+    // static constexpr double L_MAX_SCAN_ANGLE          = 20.0  / 180 * M_PI;
+    static constexpr double L_MAX_SCAN_ANGLE          = 40.0  / 180 * M_PI;
+    // static constexpr double L_MAX_SCAN_ANGLE          = 30.0  / 180 * M_PI;
     static constexpr double L_XTREME_SCAN_ANGLE       = 90.0  / 180 * M_PI;
 
     static constexpr double R_XTREME_SCAN_ANGLE       = 270.0 / 180 * M_PI;
-    static constexpr double R_MIN_SCAN_ANGLE          = 340.0 / 180 * M_PI;
+    // static constexpr double R_MIN_SCAN_ANGLE          = 340.0 / 180 * M_PI;
+    static constexpr double R_MIN_SCAN_ANGLE          = 320.0 / 180 * M_PI;
+    // static constexpr double R_MIN_SCAN_ANGLE          = 330.0 / 180 * M_PI;
     static constexpr double R_MAX_SCAN_ANGLE          = 360.0 / 180 * M_PI;
     static constexpr float  MIN_DIST_FROM_OBSTACLE    = 0.5;   // Should be smaller than sensor_msgs::LaserScan::range_max
+    // static constexpr float  MIN_DIST_FROM_OBSTACLE    = 0.7;   // Should be smaller than sensor_msgs::LaserScan::range_max
     Wanderer();
     void startMoving();
 
